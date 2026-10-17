@@ -51,6 +51,11 @@ skips `public/data`). `npm run build` never copies `public/` into `dist/`, so a 
 
 Click once to start. Arrow keys move and jump, Down blocks, Z punches, X kicks, P pauses, Esc leaves a fight.
 
+The game renders at its native 600×400. By default it is shown at the largest whole-number scale that fits the
+window (2×, 3×, …) with crisp, unsmoothed pixels, adapting to window size, fullscreen and display scaling. The
+**Crisp pixels** button in the bottom-right corner switches to filling the window with smoothing instead (the
+choice is remembered). Add `?scale=N` to the URL to force a scale.
+
 ## Project layout
 
 | Path | Contents |
@@ -60,6 +65,7 @@ Click once to start. Arrow keys move and jump, Down blocks, Z punches, X kicks, 
 | `src/data/` | Data loading: static files or an in-memory extracted game, the first-run screen, extraction worker, IndexedDB cache |
 | `src/extract/` | The zip extractor ([docs/EXTRACTION.md](docs/EXTRACTION.md), [docs/EXTRACTOR.md](docs/EXTRACTOR.md)) |
 | `src/main.ts` | Entry point: game loop, deterministic test mode |
+| `src/display.ts` | Display scaling: crisp whole-number scaling (default) or smooth fill, and the corner toggle |
 | `tests/` | Unit tests (vitest) |
 | `scripts/` | `setup.mjs` (data extraction), `run_port.mjs` (port captures), `smoke.mjs`, `perf.mjs`, `firstrun_test.mjs`, `verify_extract.mjs`, `gen_classes.py` (regenerates `src/game/classes.ts`) |
 | `scripts/authoring/` | Bots that author verification scenarios by playing the port |

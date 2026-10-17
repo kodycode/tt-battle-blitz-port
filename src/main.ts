@@ -10,6 +10,7 @@ import { setRandomSeed, getRandomSeed, rngTrace } from './runtime/lingo';
 import { setGlobal, g } from './runtime/global';
 import { Class_Globals } from './game/Class_Globals';
 import { classes } from './game/classes';
+import { installIntegerScaling } from './display';
 import type { GameSource } from './data/source';
 import { startup } from './data/startup';
 
@@ -118,7 +119,7 @@ async function boot(source: GameSource): Promise<void> {
   setStage(W, H, score.stage.bgColor || '#000000');
   canvas.width = W;
   canvas.height = H;
-  canvas.style.width = `min(100vw, ${(100 * W) / H}vh)`;
+  installIntegerScaling(canvas, W, H);
   const ctx = canvas.getContext('2d')!;
   if (!TEST_MODE) installInput(canvas, W, H);
   setCursorTarget(canvas);
