@@ -1,10 +1,10 @@
 // Display scaling. The game always renders at its native stage size (600x400); this only changes how the
 // canvas is shown. Two modes, switchable with the button in the bottom-right corner (the choice is remembered):
 //
-//   crisp  (default)  the largest integer multiple of the native size that fits the window, drawn with
+//   crisp             the largest integer multiple of the native size that fits the window, drawn with
 //                     nearest-neighbour pixels; computed in device pixels so each game pixel is exactly N×N
 //                     screen pixels on high-DPI displays
-//   smooth            fills the window (keeping the aspect ratio) with the browser's smoothing
+//   smooth (default)  fills the window (keeping the aspect ratio) with the browser's smoothing
 //
 //   ?scale=N          fixed integer scale N (crisp), overrides the mode
 
@@ -20,9 +20,9 @@ function requestedScale(): number | null {
 
 function loadMode(): Mode {
   try {
-    return localStorage.getItem(STORAGE_KEY) === 'smooth' ? 'smooth' : 'crisp';
+    return localStorage.getItem(STORAGE_KEY) === 'crisp' ? 'crisp' : 'smooth';
   } catch {
-    return 'crisp';
+    return 'smooth';
   }
 }
 
