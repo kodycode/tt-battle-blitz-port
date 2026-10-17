@@ -47,7 +47,7 @@ const shot = async (name) => outDir && page.screenshot({ path: path.join(outDir,
 const url = (q) => new URL(q, base).href;
 const firstRunShown = () => page.locator('#firstrun').count().then((n) => n > 0);
 const waitClickToStart = (timeout) =>
-  page.waitForFunction(() => document.getElementById('loading')?.textContent?.includes('Click'), null, { timeout });
+  page.waitForFunction(() => (window.__tt?.frames ?? 0) > 0, null, { timeout });
 const toTitle = async () => {
   await page.mouse.click(2, 2);
   await page.waitForFunction(() => window.__tt?.frames > 20 && window.__tt.g?.main?.currScreenID === window.__tt.g.SCREEN_TITLE, null, {

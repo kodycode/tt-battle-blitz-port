@@ -37,6 +37,11 @@ export function audioContext(): AudioContext {
     ctx = new AudioContext();
     master = ctx.createGain();
     master.connect(ctx.destination);
+    // Browsers keep audio suspended until the first user gesture. Sounds started before then are held back;
+    // when audio unlocks, whatever would still be playing starts at the point it would have reached.
+    ctx.addEventListener('statechange', () => {
+      if (ctx!.state === 'running') for (const ch of channels) ch.resumeHeld();
+    });
   }
   return ctx;
 }
@@ -81,6 +86,8 @@ export class SoundChannel {
   private busyUntil = 0; // performance.now() ms; Infinity for loops
   private playToken = 0;
   private _volume = 255;
+  // A sound started while audio was still locked: started at performance.now() = at, playback deferred.
+  private held: { buf: AudioBuffer; member: Member; token: number; at: number } | null = null;
   member: Member | null = null;
 
   constructor(n: number) {
@@ -106,27 +113,14 @@ export class SoundChannel {
     const token = ++this.playToken;
     const start = (buf: AudioBuffer | null) => {
       if (!buf || token !== this.playToken) return;
-      const c = audioContext();
-      const src = c.createBufferSource();
-      src.buffer = buf;
-      const { offset, duration } = soundPlayRegion(m.soundRegion, buf.duration);
-      src.loop = m.loop;
-      if (m.loop) {
-        src.loopStart = offset;
-        src.loopEnd = offset + duration;
-      }
-      const g = c.createGain();
-      g.gain.value = this._volume / 255;
-      src.connect(g);
-      g.connect(master!);
-      if (m.loop) src.start(0, offset);
-      else src.start(0, offset, duration);
-      this.source = src;
-      this.gain = g;
+      const { duration } = soundPlayRegion(m.soundRegion, buf.duration);
       this.busyUntil = m.loop ? Infinity : performance.now() + duration * 1000;
-      src.onended = () => {
-        if (token === this.playToken) this.busyUntil = 0;
-      };
+      if (audioContext().state !== 'running') {
+        // Audio still locked: keep the channel's timing as if playing, start the sound when audio unlocks.
+        this.held = { buf, member: m, token, at: performance.now() };
+        return;
+      }
+      this.startSource(buf, m, token, 0);
     };
     // Count as busy immediately so the audio manager does not reclaim the channel while decoding.
     this.busyUntil = m.loop ? Infinity : performance.now() + 60000;
@@ -138,7 +132,41 @@ export class SoundChannel {
       });
   }
 
+  // Starts playback `elapsed` seconds into the sound (wrapping for loops).
+  private startSource(buf: AudioBuffer, m: Member, token: number, elapsed: number): void {
+    const c = audioContext();
+    const { offset, duration } = soundPlayRegion(m.soundRegion, buf.duration);
+    if (!m.loop && elapsed >= duration) return;
+    const src = c.createBufferSource();
+    src.buffer = buf;
+    src.loop = m.loop;
+    if (m.loop) {
+      src.loopStart = offset;
+      src.loopEnd = offset + duration;
+    }
+    const g = c.createGain();
+    g.gain.value = this._volume / 255;
+    src.connect(g);
+    g.connect(master!);
+    if (m.loop) src.start(0, offset + (duration > 0 ? elapsed % duration : 0));
+    else src.start(0, offset + elapsed, duration - elapsed);
+    this.source = src;
+    this.gain = g;
+    src.onended = () => {
+      if (token === this.playToken) this.busyUntil = 0;
+    };
+  }
+
+  // Audio just unlocked: start a held sound at the point it would have reached.
+  resumeHeld(): void {
+    const h = this.held;
+    this.held = null;
+    if (!h || h.token !== this.playToken) return;
+    this.startSource(h.buf, h.member, h.token, (performance.now() - h.at) / 1000);
+  }
+
   stop(): void {
+    this.held = null;
     this.playToken++;
     if (this.source) {
       try {

@@ -34,7 +34,7 @@ The verification harness additionally needs Windows and Python 3 with `frida` an
 3. Open the printed URL and drop the zip on the page (or pick it). It is checked (SHA-1
    `b41c01eeedcef3c707decef5a52ffeff7de93dd5`), extracted in a Web Worker and kept in the browser's IndexedDB, so
    later visits start straight away. Nothing is uploaded. "Remove stored game data" (on the first-run screen, and
-   while the game waits for its start click) or `?reset=1` deletes the stored copy.
+   until the first click or key press) or `?reset=1` deletes the stored copy.
 
 For development and the tests, extract the data to files instead:
 ```
@@ -49,7 +49,9 @@ skips `public/data`). `npm run build` never copies `public/` into `dist/`, so a 
 
 ## Controls
 
-Click once to start. Arrow keys move and jump, Down blocks, Z punches, X kicks, P pauses, Esc leaves a fight.
+The game starts straight away, like the original player, and keeps running when its tab is in the background.
+Browsers only allow sound after a click or key press, so audio begins with your first interaction (the title
+screen's Start button). Arrow keys move and jump, Down blocks, Z punches, X kicks, P pauses, Esc leaves a fight.
 
 The game renders at its native 600×400. By default it fills the window (keeping its aspect ratio) with smooth
 scaling. The **Crisp pixels** button in the bottom-right corner switches to the largest whole-number scale that

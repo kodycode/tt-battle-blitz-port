@@ -241,15 +241,15 @@ async function boot(source: GameSource): Promise<void> {
     lastReal = nowReal;
   };
 
-  // Audio needs a user gesture; the game waits on the title screen for a click anyway.
-  loading.textContent = 'Click to start';
-  await new Promise<void>((resolve) => onFirstGesture(resolve));
-  resumeAudio();
+  // The game starts straight away, like the original player. Browsers only allow audio after a user gesture:
+  // it unlocks on the first click or key press (the title screen's Start button needs one anyway), and sounds
+  // started before that begin at the point they would have reached (audio.ts).
+  onFirstGesture(resumeAudio);
   loading.remove();
 
   let last = performance.now();
   let acc = 0;
-  const frame = (now: number) => {
+  const pump = (now: number) => {
     acc += Math.min(250, now - last);
     last = now;
     // Frames due in this callback get the key events up to their share of real time.
@@ -260,9 +260,17 @@ async function boot(source: GameSource): Promise<void> {
       acc -= FRAME_MS;
       step(now - acc);
     }
+  };
+  // Visible: driven by animation frames. Hidden: browsers pause animation frames in background tabs, so a timer
+  // keeps the game (and its sound) running, as the original player does when it isn't the focused window.
+  const frame = (now: number) => {
+    if (!document.hidden) pump(now);
     requestAnimationFrame(frame);
   };
   requestAnimationFrame(frame);
+  setInterval(() => {
+    if (document.hidden) pump(performance.now());
+  }, FRAME_MS / 2);
 }
 
 // ---------------------------------------------------------------- deterministic test mode (?test=1)

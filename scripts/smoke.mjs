@@ -38,7 +38,7 @@ const finish = async (code) => {
 };
 await page.goto('http://localhost:5199/' + (process.env.TT_QUERY || ''));
 try {
-  await page.waitForFunction(() => document.getElementById('loading')?.textContent?.includes('Click'), null, { timeout: 90000 });
+  await page.waitForFunction(() => (window.__tt?.frames ?? 0) > 0, null, { timeout: 90000 });
 } catch {
   console.log('boot did not finish; loading text =', await page.evaluate(() => document.getElementById('loading')?.textContent));
   await finish(1);

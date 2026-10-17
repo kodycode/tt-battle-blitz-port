@@ -28,7 +28,7 @@ if (throttle > 1) {
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: throttle });
 }
 await page.goto('http://localhost:5198/?perf=1');
-await page.waitForFunction(() => document.getElementById('loading')?.textContent?.includes('Click'), null, { timeout: 120000 });
+await page.waitForFunction(() => (window.__tt?.frames ?? 0) > 0, null, { timeout: 120000 });
 await page.mouse.click(2, 2);
 
 const frames = () => page.evaluate(() => window.__tt.frames);
