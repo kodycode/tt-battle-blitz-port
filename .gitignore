@@ -1,0 +1,21 @@
+# Local data: the original release, data extracted from it, captures of the original game, Ghidra projects,
+# third-party tools and their builds. Never commit or publish anything in here.
+local/
+
+# Game data written by `npm run setup` for development and the verification tests
+public/data/
+public/assets/
+
+# Archives (the original release zip)
+*.zip
+
+# Dependencies, build output, caches
+node_modules/
+dist/
+.cache/
+.vite/
+build/
+__pycache__/
+*.pyc
+*.log
+research/scoredump/last_run.txt

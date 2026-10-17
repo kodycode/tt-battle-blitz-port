@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teen Titans: Battle Blitz</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #000; }
+      body { display: flex; align-items: center; justify-content: center; overflow: hidden; }
+      #stage { image-rendering: auto; max-width: 100vw; max-height: 100vh; }
+      #loading { position: absolute; color: #fff; font: 16px sans-serif; }
+    </style>
+  </head>
+  <body>
+    <canvas id="stage"></canvas>
+    <div id="loading">Loading…</div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

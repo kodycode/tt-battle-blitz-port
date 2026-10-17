@@ -1,0 +1,25 @@
+{
+"name": "timeup_behind",
+"seed": 12345,
+"ticks": 3700,
+"events": [
+  {"tick":30,"type":"move","x":300,"y":381},
+  {"tick":32,"type":"down","x":300,"y":381},
+  {"tick":34,"type":"up","x":300,"y":381},
+  {"tick":130,"type":"move","x":300,"y":383},
+  {"tick":132,"type":"down","x":300,"y":383},
+  {"tick":134,"type":"up","x":300,"y":383},
+  {"tick":230,"type":"move","x":124,"y":355},
+  {"tick":232,"type":"down","x":124,"y":355},
+  {"tick":234,"type":"up","x":124,"y":355},
+  {"tick":290,"type":"move","x":108,"y":302},
+  {"tick":292,"type":"down","x":108,"y":302},
+  {"tick":294,"type":"up","x":108,"y":302},
+  {"tick":350,"type":"move","x":302,"y":129},
+  {"tick":352,"type":"down","x":302,"y":129},
+  {"tick":354,"type":"up","x":302,"y":129},
+  {"tick":613,"type":"key","key":"ArrowDown","down":true,"subMs":5},
+  {"tick":3348,"type":"key","key":"ArrowDown","down":false,"subMs":5},
+  {"tick":3484,"type":"key","key":"ArrowDown","down":true,"subMs":5}
+]
+}

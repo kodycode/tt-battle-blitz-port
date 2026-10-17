@@ -1,0 +1,24 @@
+{
+  "name": "tt-battle-blitz",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "setup": "node scripts/setup.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.1",
+    "pngjs": "7.0.0",
+    "typescript": "5.6.3",
+    "vite": "5.4.11",
+    "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "fflate": "0.8.2"
+  }
+}

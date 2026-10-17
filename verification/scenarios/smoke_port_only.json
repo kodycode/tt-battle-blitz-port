@@ -1,0 +1,163 @@
+{
+  "name": "smoke_port_only",
+  "seed": 12345,
+  "ticks": 900,
+  "events": [
+    {
+      "tick": 80,
+      "type": "move",
+      "x": 300,
+      "y": 381
+    },
+    {
+      "tick": 82,
+      "type": "down",
+      "x": 300,
+      "y": 381
+    },
+    {
+      "tick": 83,
+      "type": "up",
+      "x": 300,
+      "y": 381
+    },
+    {
+      "tick": 160,
+      "type": "move",
+      "x": 300,
+      "y": 383
+    },
+    {
+      "tick": 162,
+      "type": "down",
+      "x": 300,
+      "y": 383
+    },
+    {
+      "tick": 163,
+      "type": "up",
+      "x": 300,
+      "y": 383
+    },
+    {
+      "tick": 240,
+      "type": "move",
+      "x": 124,
+      "y": 355
+    },
+    {
+      "tick": 242,
+      "type": "down",
+      "x": 124,
+      "y": 355
+    },
+    {
+      "tick": 243,
+      "type": "up",
+      "x": 124,
+      "y": 355
+    },
+    {
+      "tick": 330,
+      "type": "move",
+      "x": 302,
+      "y": 129
+    },
+    {
+      "tick": 332,
+      "type": "down",
+      "x": 302,
+      "y": 129
+    },
+    {
+      "tick": 333,
+      "type": "up",
+      "x": 302,
+      "y": 129
+    },
+    {
+      "tick": 600,
+      "type": "key",
+      "key": "ArrowRight",
+      "down": true,
+      "subMs": 5
+    },
+    {
+      "tick": 640,
+      "type": "key",
+      "key": "ArrowRight",
+      "down": false,
+      "subMs": 5
+    },
+    {
+      "tick": 660,
+      "type": "key",
+      "key": "KeyZ",
+      "down": true,
+      "subMs": 10
+    },
+    {
+      "tick": 661,
+      "type": "key",
+      "key": "KeyZ",
+      "down": false,
+      "subMs": 3
+    },
+    {
+      "tick": 700,
+      "type": "key",
+      "key": "KeyX",
+      "down": true,
+      "subMs": 20
+    },
+    {
+      "tick": 702,
+      "type": "key",
+      "key": "KeyX",
+      "down": false,
+      "subMs": 1
+    },
+    {
+      "tick": 730,
+      "type": "key",
+      "key": "ArrowLeft",
+      "down": true,
+      "subMs": 0
+    },
+    {
+      "tick": 760,
+      "type": "key",
+      "key": "ArrowLeft",
+      "down": false,
+      "subMs": 12
+    },
+    {
+      "tick": 780,
+      "type": "key",
+      "key": "ArrowUp",
+      "down": true,
+      "subMs": 8
+    },
+    {
+      "tick": 783,
+      "type": "key",
+      "key": "ArrowUp",
+      "down": false,
+      "subMs": 8
+    },
+    {
+      "tick": 820,
+      "type": "key",
+      "key": "KeyZ",
+      "down": true,
+      "subMs": 4
+    },
+    {
+      "tick": 820,
+      "type": "key",
+      "key": "KeyZ",
+      "down": false,
+      "subMs": 20
+    }
+  ]
+}
