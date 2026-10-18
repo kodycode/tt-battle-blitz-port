@@ -53,10 +53,12 @@ The game starts straight away, like the original player, and keeps running when 
 Browsers only allow sound after a click or key press, so audio begins with your first interaction (the title
 screen's Start button). Arrow keys move and jump, Down blocks, Z punches, X kicks, P pauses, Esc leaves a fight.
 
-The game renders at its native 600×400. By default it fills the window (keeping its aspect ratio) with smooth
-scaling. The **Crisp pixels** button in the bottom-right corner switches to the largest whole-number scale that
-fits (2×, 3×, …) with sharp, unsmoothed pixels, adapting to window size, fullscreen and display scaling; the
-choice is remembered. Add `?scale=N` to the URL to force a crisp scale.
+The game renders at its native 600×400 and fills the window, keeping its 3:2 shape. By default every game pixel
+is shown as a crisp block of its original colour: the frame is enlarged by pixel replication to the next whole
+multiple of its size, and the browser fits that to the window, so only block edges are blended, over at most one
+screen pixel. This adapts to window size, fullscreen and display scaling, up to 4K. The **Sharp pixels** button in
+the bottom-right corner switches to smooth scaling and back; the choice is remembered. Add `?scale=N` to the URL for
+exactly N×N screen pixels per game pixel.
 
 ## Project layout
 
@@ -67,7 +69,7 @@ choice is remembered. Add `?scale=N` to the URL to force a crisp scale.
 | `src/data/` | Data loading: static files or an in-memory extracted game, the first-run screen, extraction worker, IndexedDB cache |
 | `src/extract/` | The zip extractor ([docs/EXTRACTION.md](docs/EXTRACTION.md), [docs/EXTRACTOR.md](docs/EXTRACTOR.md)) |
 | `src/main.ts` | Entry point: game loop, deterministic test mode |
-| `src/display.ts` | Display scaling: smooth fill (default) or crisp whole-number scaling, and the corner toggle |
+| `src/display.ts` | Display scaling: sharp pixels (default) or smooth, and the corner toggle |
 | `tests/` | Unit tests (vitest) |
 | `scripts/` | `setup.mjs` (data extraction), `run_port.mjs` (port captures), `smoke.mjs`, `perf.mjs`, `firstrun_test.mjs`, `verify_extract.mjs`, `gen_classes.py` (regenerates `src/game/classes.ts`) |
 | `scripts/authoring/` | Bots that author verification scenarios by playing the port |

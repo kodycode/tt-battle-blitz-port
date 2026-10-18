@@ -10,7 +10,7 @@ import { setRandomSeed, getRandomSeed, rngTrace } from './runtime/lingo';
 import { setGlobal, g } from './runtime/global';
 import { Class_Globals } from './game/core/Class_Globals';
 import { classes } from './game/classes';
-import { installIntegerScaling } from './display';
+import { installDisplay } from './display';
 import type { GameSource } from './data/source';
 import { startup } from './data/startup';
 
@@ -117,10 +117,25 @@ async function boot(source: GameSource): Promise<void> {
   const W = score.stage.width;
   const H = score.stage.height;
   setStage(W, H, score.stage.bgColor || '#000000');
-  canvas.width = W;
-  canvas.height = H;
-  installIntegerScaling(canvas, W, H);
-  const ctx = canvas.getContext('2d')!;
+  // The native renderer draws into an offscreen canvas at the stage size; the visible canvas shows it enlarged
+  // (display.ts: by pixel replication to a whole multiple, or by the browser with smoothing). In test mode it
+  // draws straight into the visible canvas (captures are the native output).
+  const native = TEST_MODE ? canvas : document.createElement('canvas');
+  native.width = W;
+  native.height = H;
+  const ctx = native.getContext('2d')!;
+  const view = TEST_MODE ? null : canvas.getContext('2d')!;
+  let repaintAll = true; // the visible canvas was resized: copy the whole frame on the next render
+  const enlargement = installDisplay(canvas, W, H, () => (repaintAll = true), TEST_MODE);
+  const render = () => {
+    renderStage(ctx, W, H, stageBgColor);
+    if (!view || (!lastUpdateRegion().length && !repaintAll)) return;
+    // Pixel replication: each native pixel becomes a k x k block (whole multiples only, so it is exact).
+    const k = enlargement();
+    view.imageSmoothingEnabled = false;
+    view.drawImage(native, 0, 0, W * k, H * k);
+    repaintAll = false;
+  };
   if (!TEST_MODE) installInput(canvas, W, H);
   setCursorTarget(canvas);
   setTextRenderer(textRenderer);
@@ -211,7 +226,7 @@ async function boot(source: GameSource): Promise<void> {
       const t0 = performance.now();
       player.beginFrame();
       const t1 = performance.now();
-      renderStage(ctx, W, H, stageBgColor);
+      render();
       const t2 = performance.now();
       player.endFrame();
       const perf = ((window as any).__tt.perf ??= { logic: [] as number[], render: [] as number[], at: [] as number[] });
@@ -220,7 +235,7 @@ async function boot(source: GameSource): Promise<void> {
       perf.at.push(t0);
     } else {
       player.beginFrame();
-      renderStage(ctx, W, H, stageBgColor);
+      render();
       player.endFrame();
     }
     (window as any).__tt.frames++;

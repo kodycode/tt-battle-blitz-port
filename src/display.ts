@@ -1,14 +1,20 @@
-// Display scaling. The game always renders at its native stage size (600x400); this only changes how the
-// canvas is shown. Two modes, switchable with the button in the bottom-right corner (the choice is remembered):
+// Display scaling. The game always renders at its native stage size (600x400); this only changes how the frame is
+// shown. Two modes, switchable with the button in the bottom-right corner (the choice is remembered):
 //
-//   crisp             the largest integer multiple of the native size that fits the window, drawn with
-//                     nearest-neighbour pixels; computed in device pixels so each game pixel is exactly N×N
-//                     screen pixels on high-DPI displays
-//   smooth (default)  fills the window (keeping the aspect ratio) with the browser's smoothing
+//   sharp (default)  the frame is enlarged by pixel replication to the smallest whole multiple of its size that
+//                    covers the window in device pixels (main.ts copies it into the visible canvas), and the
+//                    browser fits that to the window. Every game pixel stays a crisp block of the original colour;
+//                    where the window is not a whole multiple, block edges are blended over at most one screen
+//                    pixel. It fills the window, keeping the 3:2 shape, at any size up to 4K and beyond.
+//   smooth           the native frame scaled up by the browser with smoothing
 //
-//   ?scale=N          fixed integer scale N (crisp), overrides the mode
+//   ?scale=N         exactly N x N screen pixels per game pixel, whatever the window (pixel-perfect; may not fill
+//                    the window, or overflow it); no button
+//
+// The canvas's backing size follows the mode, the window and the device pixel ratio (browser zoom, moving the
+// window to another display); onResize tells main.ts to repaint the whole picture.
 
-type Mode = 'crisp' | 'smooth';
+export type DisplayMode = 'sharp' | 'smooth';
 
 const MAX_SCALE = 16;
 const STORAGE_KEY = 'tt-display-mode';
@@ -18,15 +24,15 @@ function requestedScale(): number | null {
   return Number.isInteger(v) && v >= 1 ? Math.min(v, MAX_SCALE) : null;
 }
 
-function loadMode(): Mode {
+function loadMode(): DisplayMode {
   try {
-    return localStorage.getItem(STORAGE_KEY) === 'crisp' ? 'crisp' : 'smooth';
+    return localStorage.getItem(STORAGE_KEY) === 'smooth' ? 'smooth' : 'sharp';
   } catch {
-    return 'smooth';
+    return 'sharp';
   }
 }
 
-function saveMode(mode: Mode): void {
+function saveMode(mode: DisplayMode): void {
   try {
     localStorage.setItem(STORAGE_KEY, mode);
   } catch {
@@ -34,37 +40,35 @@ function saveMode(mode: Mode): void {
   }
 }
 
-export function installIntegerScaling(canvas: HTMLCanvasElement, width: number, height: number): void {
-  const fixed = requestedScale();
-  let mode: Mode = fixed !== null ? 'crisp' : loadMode();
+// Sizes `canvas` for showing a width x height frame. With fixedNative (test mode) the canvas keeps the native
+// size and is only fitted to the window. Returns a function giving the current enlargement (canvas / native size).
+export function installDisplay(canvas: HTMLCanvasElement, width: number, height: number, onResize: () => void, fixedNative = false): () => number {
+  const fixed = fixedNative ? null : requestedScale();
+  let mode: DisplayMode = fixedNative ? 'smooth' : fixed !== null ? 'sharp' : loadMode();
+  let k = 0;
   canvas.style.maxWidth = 'none';
   canvas.style.maxHeight = 'none';
 
   const apply = () => {
-    canvas.style.imageRendering = mode === 'crisp' ? 'pixelated' : 'auto';
-    if (mode === 'smooth') {
-      const s = Math.min(window.innerWidth / width, window.innerHeight / height);
-      canvas.style.width = `${width * s}px`;
-      canvas.style.height = `${height * s}px`;
-      return;
-    }
     const dpr = window.devicePixelRatio || 1;
-    const fit = Math.floor(Math.min((window.innerWidth * dpr) / width, (window.innerHeight * dpr) / height));
-    if (fixed === null && fit < 1) {
-      // Window smaller than the native stage: shrink to fit (the only non-integer case).
-      const s = Math.min(window.innerWidth / width, window.innerHeight / height);
-      canvas.style.width = `${width * s}px`;
-      canvas.style.height = `${height * s}px`;
-      return;
+    const fit = Math.min(window.innerWidth / width, window.innerHeight / height);
+    const next = fixedNative || mode === 'smooth' ? 1 : (fixed ?? Math.max(1, Math.min(MAX_SCALE, Math.ceil(fit * dpr - 0.01))));
+    if (next !== k) {
+      k = next;
+      canvas.width = width * k;
+      canvas.height = height * k;
+      onResize();
     }
-    const k = fixed ?? Math.min(fit, MAX_SCALE);
-    canvas.style.width = `${(width * k) / dpr}px`;
-    canvas.style.height = `${(height * k) / dpr}px`;
+    // With ?scale=N, exactly N device pixels per game pixel; otherwise fit the window.
+    const css = fixed !== null ? fixed / dpr : fit;
+    canvas.style.width = `${width * css}px`;
+    canvas.style.height = `${height * css}px`;
+    // The enlargement itself is pixel replication (main.ts); the browser only fits the result to the window.
+    canvas.style.imageRendering = fixed !== null ? 'pixelated' : 'auto';
   };
 
   apply();
   window.addEventListener('resize', apply);
-  // Re-apply when the device pixel ratio changes (browser zoom, moving the window to another display).
   const watchDpr = () => {
     const mq = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
     mq.addEventListener('change', () => {
@@ -74,15 +78,17 @@ export function installIntegerScaling(canvas: HTMLCanvasElement, width: number, 
   };
   watchDpr();
 
-  if (fixed === null) addToggle(() => mode, (m) => {
-    mode = m;
-    saveMode(m);
-    apply();
-  });
+  if (!fixedNative && fixed === null)
+    addToggle(() => mode, (m) => {
+      mode = m;
+      saveMode(m);
+      apply();
+    });
+  return () => k;
 }
 
-// Small corner button: "Crisp pixels: on/off".
-function addToggle(get: () => Mode, set: (m: Mode) => void): void {
+// Small corner button: "Sharp pixels: On/Off".
+function addToggle(get: () => DisplayMode, set: (m: DisplayMode) => void): void {
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.id = 'display-toggle';
@@ -102,12 +108,12 @@ function addToggle(get: () => Mode, set: (m: Mode) => void): void {
     transition: 'opacity 0.15s',
   } as Partial<CSSStyleDeclaration>);
   const label = () => {
-    const on = get() === 'crisp';
-    btn.textContent = `Crisp pixels: ${on ? 'On' : 'Off'}`;
+    const on = get() === 'sharp';
+    btn.textContent = `Sharp pixels: ${on ? 'On' : 'Off'}`;
     btn.setAttribute('aria-pressed', String(on));
     btn.title = on
-      ? 'Whole-number scaling with sharp pixels. Click to fill the window with smoothing instead.'
-      : 'Fills the window with smoothing. Click for whole-number scaling with sharp pixels.';
+      ? 'Every game pixel is a crisp block, filling the window. Click for smooth scaling instead.'
+      : 'Smooth scaling. Click for crisp game pixels.';
   };
   btn.addEventListener('mouseenter', () => (btn.style.opacity = '1'));
   btn.addEventListener('mouseleave', () => (btn.style.opacity = '0.55'));
@@ -115,7 +121,7 @@ function addToggle(get: () => Mode, set: (m: Mode) => void): void {
   btn.addEventListener('mousedown', (e) => e.preventDefault());
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
-    set(get() === 'crisp' ? 'smooth' : 'crisp');
+    set(get() === 'sharp' ? 'smooth' : 'sharp');
     label();
   });
   label();
