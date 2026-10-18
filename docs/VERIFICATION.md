@@ -17,7 +17,7 @@ The original is the ground truth (the *oracle*): a difference is a bug in the po
 |---|---|
 | `verification/scenarios/<name>.json` | Scenarios (input scripts) |
 | `verification/harness/` | `run_projector.py` (runs and captures the original), `agent.js` (the Frida agent it injects), `screens.py` (capture inspection) |
-| `verification/diff/` | `diff.mjs` (pixels), `sprites_diff.mjs` (sprite state), `region_diff.mjs` (stage update regions) |
+| `verification/diff/` | `diff.mjs` (pixels), `sprites_diff.mjs` (sprite state), `region_diff.mjs` (stage update regions), `sweep.mjs` (every scenario against the original) |
 | `scripts/run_port.mjs` | Runs and captures the port |
 | `scripts/authoring/` | Bots that write new scenarios by playing the port in closed loop |
 | `local/run/ttbattleblitz/` | The original game folder the harness launches (git-ignored) |
@@ -120,6 +120,12 @@ the first-run screen). `--mem` and `--zip` must produce the same frames as the d
 ```
 node verification/diff/diff.mjs menu_walkthrough
 node verification/diff/diff.mjs menu_walkthrough --a-dir <capture A> --b-dir <capture B> --out <dir> --pix 0 --tick-pct 0
+```
+
+All scenarios at once, each compared with the original at pixel tolerance 0 and on every tick's random state and
+score frame (exit code 1 if any differs):
+```
+node verification/diff/sweep.mjs [--parallel N] [scenario ...]
 ```
 Compares `projector` (A, reference) with `port` (B) tick by tick, auto-aligns a constant tick offset (none for a
 correct port), reports the first divergent tick and writes `report.html` with side-by-side and difference images.
