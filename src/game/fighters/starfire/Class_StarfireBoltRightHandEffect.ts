@@ -1,0 +1,16 @@
+import { g, Point, list } from '../../../runtime';
+import { Class_Effect } from '../../actors/Class_Effect';
+
+export class Class_StarfireBoltRightHandEffect extends Class_Effect {
+  constructor(owner: any, initPos: Point, initVel: Point, initDir: number) {
+    super(owner, initPos, initVel, initDir);
+    const A = g.assets.CHAR_SHARED;
+    const vis = list(A.FX_STARFIRE_BOLT_03, A.FX_STARFIRE_BOLT_05, A.FX_STARFIRE_SWEEP_01);
+    this.animation = new g.classes.Class_PlayOnceAnimation(vis);
+  }
+
+  destroy(): undefined {
+    super.destroy();
+    return undefined;
+  }
+}

@@ -12,7 +12,7 @@ from, and to regenerate the asset classes.
 | `scoredump/fix_sounds.cjs` | Post-processing: writes every sound's complete MPEG stream and adds the sound timing fields to `casts.json` |
 | `scoredump/last_run.txt` | scoredump's report for the original release (member counts, bitmap/palette checks, score statistics) |
 | `castmeta.py` | Bitmap member metadata (size, reg point, depth, palette) from ProjectorRays `--dump-chunks` output |
-| `gen_assets.py` | Generates `src/game/Class_Assets*.ts` from the decompiled Lingo asset classes |
+| `gen_assets.py` | Generates `src/game/**/Class_Assets*.ts` (each in its folder) from the decompiled Lingo asset classes |
 
 ## Third-party tools
 

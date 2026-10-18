@@ -6,13 +6,17 @@
 source looks wrong. Original bugs are ported as they are; logic, timings and numbers are never "improved". Notable
 original bugs are marked with `// ORIGINAL BUG:`.
 
-Reference ports to copy the style of: `src/game/Class_Fighter.ts`, `Class_Move.ts`, `Class_Projectile.ts`,
-`Class_Effect.ts`, `Class_RobinStand.ts`, `Class_RobinPunch.ts`, `Class_RobinJump.ts`, `Class_RobinKeyAdapter.ts`.
-Runtime API: `src/runtime/*.ts` (import everything from `'../runtime'`).
+Reference ports to copy the style of: `src/game/fighters/Class_Fighter.ts`, `fighters/Class_Move.ts`,
+`actors/Class_Projectile.ts`, `actors/Class_Effect.ts`, and Robin's `fighters/robin/Class_RobinStand.ts`,
+`Class_RobinPunch.ts`, `Class_RobinJump.ts`, `Class_RobinKeyAdapter.ts`.
+Runtime API: `src/runtime/*.ts` (import everything from the runtime index, e.g. `'../../runtime'`).
 
 ## Files and classes
-- One file per Lingo script: `src/game/<ScriptName>.ts` exporting `class <ScriptName>` — the script name
+- One file per Lingo script: `src/game/<folder>/<ScriptName>.ts` exporting `class <ScriptName>` — the script name
   is the part after `ParentScript 123 - ` / `BehaviorScript 45 - ` (e.g. `Class_RobinKick`, `Behavior_TitleScreen`).
+  The folder follows `scripts/game_layout.py`: `fighters/<name>/` for everything of one fighter, `fighters/` for
+  what they share, `screens/<screen>/` for a screen and its behaviours, and `actors/`, `animation/`, `effects/`,
+  `hud/`, `core/`, `movie/`.
 - Never instantiate another game class through an import. Use the registry like Lingo does:
   `new(g.classes.Class_X, a, b)` → `new g.classes.Class_X(a, b)`. Only import a base class you `extends`,
   and use `import type` for type-only imports. (This avoids ES-module cycles.)
@@ -77,7 +81,7 @@ Runtime API: `src/runtime/*.ts` (import everything from `'../runtime'`).
 ## Globals and assets
 - `global g` → `import { g } from '../runtime'`. `g.classes.Class_X`, `g.assets.ROBIN.ROBIN_STAND_01`,
   `g.main`, `g.game`, `g.screen`, constants `g.MOVE_*`, `g.DAMAGE_*`, `g.SPRITE_LOCZ_*` …
-- TypeScript is case-sensitive, Lingo is not. Asset field names are in `src/game/Class_Assets*.ts`
+- TypeScript is case-sensitive, Lingo is not. Asset field names are in `src/game/**/Class_Assets*.ts`
   (generated; spelling matches the Lingo name table, so use the spelling in the source).
 - Typing: keep it loose and fast — `any` for object references (`owner`, `target`, `opponent`, screen
   objects); explicit types for numbers/points/lists where obvious.

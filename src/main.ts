@@ -8,7 +8,7 @@ import { setFrameInput } from './runtime/busywait';
 import { resumeAudio, loadSound, setAudioVirtualClock, setSoundLoader } from './runtime/audio';
 import { setRandomSeed, getRandomSeed, rngTrace } from './runtime/lingo';
 import { setGlobal, g } from './runtime/global';
-import { Class_Globals } from './game/Class_Globals';
+import { Class_Globals } from './game/core/Class_Globals';
 import { classes } from './game/classes';
 import { installIntegerScaling } from './display';
 import type { GameSource } from './data/source';
